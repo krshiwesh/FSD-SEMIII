@@ -1,0 +1,490 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Node.js FSD Activity</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f6f7fb;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        section {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        button {
+            margin: 5px 6px 5px 0;
+            padding: 9px 15px;
+            border: none;
+            border-radius: 7px;
+            background: #4f46e5;
+            color: #fff;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background: #4338ca;
+        }
+
+        input {
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            margin-right: 6px;
+            font-family: inherit;
+        }
+
+        pre {
+            background: #111;
+            color: #7fffa0;
+            padding: 12px;
+            border-radius: 7px;
+            overflow-x: auto;
+            min-height: 25px;
+            white-space: pre-wrap;
+        }
+
+        #log {
+            background: #222;
+            color: #ddd;
+            font-size: 13px;
+            padding: 12px;
+            border-radius: 7px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🧩 Node.js FSD Activity</h1>
+
+    <!--
+        1. Custom EventEmitter
+
+        Browser request karta hai:
+        /greet ya /exit
+
+        Node.js server EventEmitter ke through
+        corresponding event ko trigger karta hai.
+    -->
+
+    <section>
+        <h2>1️⃣ Custom EventEmitter</h2>
+
+        <p class="info">
+            Demonstrates custom events using Node.js EventEmitter.
+        </p>
+
+        <input
+            id="nameInput"
+            placeholder="Your name"
+            value="Student"
+        >
+
+        <button onclick="callGreet()">
+            Trigger "greet"
+        </button>
+
+        <button onclick="callExit()">
+            Trigger "exit"
+        </button>
+
+        <pre id="emitterOutput"></pre>
+    </section>
+
+
+    <!--
+        2. DOM Event Handling
+
+        DOM = Document Object Model.
+
+        JavaScript HTML elements ko objects ki tarah access
+        aur manipulate kar sakti hai.
+
+        addEventListener() user ke action ko detect karta hai.
+    -->
+
+    <section>
+        <h2>2️⃣ DOM-like Event Handling</h2>
+
+        <p class="info">
+            Demonstrates native DOM events and CustomEvent.
+        </p>
+
+        <button id="domBtn">
+            Click me
+        </button>
+
+        <pre id="domOutput"></pre>
+    </section>
+
+
+    <!--
+        3. Event Loop
+
+        Node.js asynchronous operations ko event loop handle karta hai.
+
+        Is demo mein:
+        process.nextTick()
+        Promise
+        setTimeout()
+        setImmediate()
+
+        ka execution order dekhenge.
+    -->
+
+    <section>
+        <h2>3️⃣ Event Loop</h2>
+
+        <p class="info">
+            Demonstrates asynchronous execution in Node.js.
+        </p>
+
+        <button onclick="runEventLoop()">
+            Run Event Loop Demo
+        </button>
+
+        <pre id="eventLoopOutput"></pre>
+    </section>
+
+
+    <!--
+        4. File CRUD
+
+        fs = File System module.
+
+        Create  -> file create/write
+        Read    -> file read
+        Update  -> file mein append
+        Delete  -> file delete
+    -->
+
+    <section>
+        <h2>4️⃣ File CRUD (fs module)</h2>
+
+        <p class="info">
+            Create, read, update and delete a text file using Node.js fs module.
+        </p>
+
+        <input
+            id="fileText"
+            placeholder="Text for the file"
+        >
+
+        <br>
+
+        <button onclick="createFile()">
+            Create
+        </button>
+
+        <button onclick="readFile()">
+            Read
+        </button>
+
+        <button onclick="updateFile()">
+            Update
+        </button>
+
+        <button onclick="deleteFile()">
+            Delete
+        </button>
+
+        <pre id="fileOutput"></pre>
+    </section>
+
+
+    <!--
+        5. HTTP Request Log
+
+        Har request ka method, URL aur status yahan show hoga.
+    -->
+
+    <section>
+        <h2>📡 Live Request Log</h2>
+
+        <div id="log">
+            Waiting for actions...
+        </div>
+    </section>
+
+
+    <script>
+
+        // ------------------------------------------------
+        // COMMON LOG FUNCTION
+        // ------------------------------------------------
+
+        const logBox = document.getElementById("log");
+
+        function log(message) {
+
+            const time = new Date().toLocaleTimeString();
+
+            logBox.innerHTML =
+                `[${time}] ${message}<br>` + logBox.innerHTML;
+        }
+
+
+        // ------------------------------------------------
+        // 1. CUSTOM EVENT EMITTER
+        // ------------------------------------------------
+
+        async function callGreet() {
+
+            const name =
+                document.getElementById("nameInput").value || "Guest";
+
+            const res =
+                await fetch(`/greet?name=${encodeURIComponent(name)}`);
+
+            const data =
+                await res.json();
+
+            document.getElementById("emitterOutput").textContent =
+                JSON.stringify(data, null, 2);
+
+            log(`GET /greet -> status ${res.status}`);
+        }
+
+
+        async function callExit() {
+
+            const res =
+                await fetch("/exit");
+
+            const data =
+                await res.json();
+
+            document.getElementById("emitterOutput").textContent =
+                JSON.stringify(data, null, 2);
+
+            log(`GET /exit -> status ${res.status}`);
+        }
+
+
+        // ------------------------------------------------
+        // 2. DOM EVENT HANDLING
+        // ------------------------------------------------
+
+        const domBtn =
+            document.getElementById("domBtn");
+
+        const domOutput =
+            document.getElementById("domOutput");
+
+
+        // Native click event
+
+        domBtn.addEventListener("click", () => {
+
+            domOutput.textContent =
+                'Native "click" event caught by addEventListener!';
+
+
+            // Create our own custom event
+
+            const myEvent =
+                new CustomEvent(
+                    "studentClicked",
+                    {
+                        detail: {
+                            time: new Date().toLocaleTimeString()
+                        }
+                    }
+                );
+
+
+            // Fire custom event
+
+            domBtn.dispatchEvent(myEvent);
+
+        });
+
+
+        // Listen for custom event
+
+        domBtn.addEventListener("studentClicked", (event) => {
+
+            domOutput.textContent +=
+                `\nCustom event "studentClicked" fired at ${event.detail.time}`;
+
+        });
+
+
+        // ------------------------------------------------
+        // 3. EVENT LOOP
+        // ------------------------------------------------
+
+        async function runEventLoop() {
+
+            document.getElementById("eventLoopOutput").textContent =
+                "Running...";
+
+            const res =
+                await fetch("/eventloop");
+
+            const data =
+                await res.json();
+
+            document.getElementById("eventLoopOutput").textContent =
+                data.order.join("\n");
+
+            log(`GET /eventloop -> status ${res.status}`);
+        }
+
+
+        // ------------------------------------------------
+        // 4. FILE CRUD
+        // ------------------------------------------------
+
+        // CREATE
+
+        async function createFile() {
+
+            const text =
+                document.getElementById("fileText").value;
+
+            const res =
+                await fetch("/create", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        text: text
+                    })
+                });
+
+
+            const data =
+                await res.json();
+
+            document.getElementById("fileOutput").textContent =
+                JSON.stringify(data, null, 2);
+
+            log(`POST /create -> status ${res.status}`);
+        }
+
+
+        // READ
+
+        async function readFile() {
+
+            const res =
+                await fetch("/read");
+
+            const data =
+                await res.json();
+
+            document.getElementById("fileOutput").textContent =
+                JSON.stringify(data, null, 2);
+
+            log(`GET /read -> status ${res.status}`);
+        }
+
+
+        // UPDATE
+
+        async function updateFile() {
+
+            const text =
+                document.getElementById("fileText").value;
+
+            const res =
+                await fetch("/update", {
+
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        text: text
+                    })
+                });
+
+
+            const data =
+                await res.json();
+
+            document.getElementById("fileOutput").textContent =
+                JSON.stringify(data, null, 2);
+
+            log(`PUT /update -> status ${res.status}`);
+        }
+
+
+        // DELETE
+
+        async function deleteFile() {
+
+            const res =
+                await fetch("/delete", {
+                    method: "DELETE"
+                });
+
+            const data =
+                await res.json();
+
+            document.getElementById("fileOutput").textContent =
+                JSON.stringify(data, null, 2);
+
+            log(`DELETE /delete -> status ${res.status}`);
+        }
+
+    </script>
+
+</body>
+
+</html>
+```
